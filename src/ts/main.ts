@@ -37,7 +37,6 @@ const formatter = new Intl.DateTimeFormat("ja-JP", {
 let stream: MediaStream | null = null;
 let detectTimer: number | null = null;
 let scanning: boolean = false;
-let dataArr: Item[] = [];
 let lastText: string = "";
 const storageNameData = "ReadBarcode";
 
@@ -149,17 +148,29 @@ async function callbackStartBtn() {
 
 
 // 結果クリアボタン
-function callbackClearBtn(): void {
+async function callbackClearBtn(): Promise<void> {
     const result = confirm("保持データを消去しますか？");
 
-    if (result) {
-        dataArr = [];
-        lastText = "";
-        showItemNumber();
-        elemResultList.innerHTML = "";
-        localStorage.removeItem(storageNameData);
-    }
-};
+    if (!result) return;
+
+    // IndexedDB 全削除
+    const db = await openDB();
+    await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction("items", "readwrite");
+        const store = tx.objectStore("items");
+        const req = store.clear();   // ★ 全削除
+
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+    });
+
+    // 内部状態リセット
+    lastText = "";
+
+    // 画面の反映
+    await showItemNumber();   // 件数が0になる
+    elemResultList.innerHTML = "";
+}
 
 
 
