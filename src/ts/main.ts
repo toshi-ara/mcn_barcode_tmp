@@ -16,6 +16,11 @@ interface Item {
   timestamp: string;
 }
 
+//学籍番号を取得する正規表現
+// （codabarのスタート、ストップ文字に挟まれた6桁の数字）
+const matchStr = /^[A-D](\d{6})[A-D]$/;
+
+// 時刻のフォーマット
 const formatter = new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "2-digit",
@@ -26,10 +31,6 @@ const formatter = new Intl.DateTimeFormat("ja-JP", {
     hour12: false,
 });
 
-
-//学籍番号を取得する正規表現
-// （codabarのスタート、ストップ文字に挟まれた6桁の数字）
-const matchStr = /^[A-D](\d{6})[A-D]$/;
 
 
 // initial setting for global variables
@@ -268,18 +269,6 @@ function getCropRect(video: HTMLVideoElement) {
 // バーコード解析
 // スタート文字[A-D]とストップ文字[A-D]の中に含まれる6桁の数字を取得
 //    => 6桁の数字が学籍番号
-// function analyzeBarcode(code: string): void {
-//     if (code === lastText) return;
-
-//     const match = code.match(matchStr);
-//     if (match) {
-//         addResultItem(match[1]);
-//         lastText = code;
-//         saveStorageData(dataArr);
-//     } else {
-//         alert("無効なバーコードです");
-//     }
-// };
 async function analyzeBarcode(code: string): Promise<void> {
     if (code === lastText) return;
 
@@ -310,6 +299,11 @@ async function analyzeBarcode(code: string): Promise<void> {
 }
 
 
+
+///////////////////////////////////////
+// indexeddb
+///////////////////////////////////////
+
 function openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("MyDB", 1);
@@ -317,7 +311,6 @@ function openDB(): Promise<IDBDatabase> {
         request.onupgradeneeded = (_event) => {
             const db = request.result;
             if (!db.objectStoreNames.contains("items")) {
-                // db.createObjectStore("items", { keyPath: "id" }); // id をキーにする
                 db.createObjectStore("items", { keyPath: "key", autoIncrement: true });
             }
         };
@@ -358,16 +351,6 @@ async function getAllItems(): Promise<Item[]> {
 function addResultItem(id: string): void {
     const now = new Date();
 
-    const formatter = new Intl.DateTimeFormat("ja-JP", {
-        timeZone: "Asia/Tokyo",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-    });
     const parts = formatter.formatToParts(now);
     const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
     const timeStr = `${obj.year}-${obj.month}-${obj.day}T${obj.hour}:${obj.minute}:${obj.second}`;
@@ -390,13 +373,6 @@ function addResultItem(id: string): void {
 ///////////////////////////////////////
 // display item number
 ///////////////////////////////////////
-
-// function showItemNumber(): void {
-//     const num = new Set(dataArr.map(item => item["id"]));
-//     const total = dataArr.length;
-//     elemItemNumber.textContent = `登録 ${num["size"]}件（合計 ${total}件）`;
-// };
-
 async function showItemNumber(): Promise<void> {
   const items = await getAllItems(); // 全件取得
 
@@ -408,28 +384,35 @@ async function showItemNumber(): Promise<void> {
 
 
 // display result list
-function showResultList(): void {
-    // sort (1) id and (2) timestamp
-    const sorted = [...dataArr].sort((a, b) => {
-        // (1) compare id
-        const idCompare = Number(a["id"]) - Number(b["id"]);
+async function showResultList(): Promise<void> {
+    // IndexedDB から全件取得
+    const items = await getAllItems();
+
+    // sort (1) id → (2) timestamp
+    const sorted = [...items].sort((a, b) => {
+        // (1) compare id (数値として比較)
+        const idCompare = Number(a.id) - Number(b.id);
         if (idCompare !== 0) return idCompare;
-        // (2) compare timestamp
-        if (a["timestamp"] < b["timestamp"]) return -1;
-        if (a["timestamp"] > b["timestamp"]) return 1;
+
+        // (2) compare timestamp (文字列 → ISO形式のため文字比較でOK)
+        if (a.timestamp < b.timestamp) return -1;
+        if (a.timestamp > b.timestamp) return 1;
         return 0;
     });
 
+    // ユニーク id（先頭の1件のみ）
     const unique = sorted.filter((item, index, self) =>
-      index === self.findIndex(t => t["id"] === item["id"])
+        index === self.findIndex(t => t.id === item.id)
     );
 
+    // HTML に表示
     let str = "";
     for (const dict of unique) {
-        str = str + `${dict["id"]}: ${dict["timestamp"]}<BR>`;
+        str += `${dict.id}: ${dict.timestamp}<br>`;
     }
     elemResultList.innerHTML = str;
-};
+}
+
 
 
 // Beep sound
@@ -453,22 +436,6 @@ function playBeepSound(duration: number): void {
 
 
 
-// ///////////////////////////////////////
-// // storage
-// ///////////////////////////////////////
-
-// // save data to localStorage
-// function saveStorageData(data: Item[]): void {
-//     localStorage.setItem(storageNameData, JSON.stringify(data))
-// }
-
-// // get data in localStorage
-// function loadStorageData(): Item[] {
-//     const data: string | null = localStorage.getItem(storageNameData);
-//     return data ? JSON.parse(data): [];
-// }
-
-
 
 ///////////////////////////////////////
 // Initialization
@@ -485,7 +452,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     setUIState("initial");
-    // dataArr = loadStorageData();
     // show item number and list
     showItemNumber();
     showResultList();
