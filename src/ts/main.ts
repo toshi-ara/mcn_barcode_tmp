@@ -16,8 +16,18 @@ interface Item {
   timestamp: string;
 }
 
+const formatter = new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+});
 
-// 学籍番号を取得する正規表現
+
+//学籍番号を取得する正規表現
 // （codabarのスタート、ストップ文字に挟まれた6桁の数字）
 const matchStr = /^[A-D](\d{6})[A-D]$/;
 
@@ -258,29 +268,57 @@ function getCropRect(video: HTMLVideoElement) {
 // バーコード解析
 // スタート文字[A-D]とストップ文字[A-D]の中に含まれる6桁の数字を取得
 //    => 6桁の数字が学籍番号
-function analyzeBarcode(code: string): void {
+// function analyzeBarcode(code: string): void {
+//     if (code === lastText) return;
+
+//     const match = code.match(matchStr);
+//     if (match) {
+//         addResultItem(match[1]);
+//         lastText = code;
+//         saveStorageData(dataArr);
+//     } else {
+//         alert("無効なバーコードです");
+//     }
+// };
+async function analyzeBarcode(code: string): Promise<void> {
     if (code === lastText) return;
 
     const match = code.match(matchStr);
-    if (match) {
-        addResultItem(match[1]);
-        lastText = code;
-        saveStorageData(dataArr);
-    } else {
+    if (!match) {
         alert("無効なバーコードです");
+        return;
     }
-};
 
+    const id = match[1];
+
+    // タイムスタンプ作成
+    const now = new Date();
+    const parts = formatter.formatToParts(now);
+    const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
+    const timeStr = `${obj.year}-${obj.month}-${obj.day}T${obj.hour}:${obj.minute}:${obj.second}`;
+
+    // 画面に表示
+    addResultItem(id);
+
+    // IndexedDB に保存
+    await addItem({ id, timestamp: timeStr });
+
+    // 二重読み取り防止
+    lastText = code;
+
+    await showItemNumber();
+}
 
 
 function openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("MyDB", 1);
 
-        request.onupgradeneeded = (event) => {
+        request.onupgradeneeded = (_event) => {
             const db = request.result;
             if (!db.objectStoreNames.contains("items")) {
-                db.createObjectStore("items", { keyPath: "id" }); // id をキーにする
+                // db.createObjectStore("items", { keyPath: "id" }); // id をキーにする
+                db.createObjectStore("items", { keyPath: "key", autoIncrement: true });
             }
         };
 
@@ -312,9 +350,6 @@ async function getAllItems(): Promise<Item[]> {
         request.onerror = () => reject(request.error);
     });
 }
-
-
-
 
 
 
@@ -356,11 +391,20 @@ function addResultItem(id: string): void {
 // display item number
 ///////////////////////////////////////
 
-function showItemNumber(): void {
-    const num = new Set(dataArr.map(item => item["id"]));
-    const total = dataArr.length;
-    elemItemNumber.textContent = `登録 ${num["size"]}件（合計 ${total}件）`;
-};
+// function showItemNumber(): void {
+//     const num = new Set(dataArr.map(item => item["id"]));
+//     const total = dataArr.length;
+//     elemItemNumber.textContent = `登録 ${num["size"]}件（合計 ${total}件）`;
+// };
+
+async function showItemNumber(): Promise<void> {
+  const items = await getAllItems(); // 全件取得
+
+  const unique = new Set(items.map(i => i.id)).size;
+  const total = items.length;
+
+  elemItemNumber.textContent = `登録 ${unique}件（合計 ${total}件）`;
+}
 
 
 // display result list
