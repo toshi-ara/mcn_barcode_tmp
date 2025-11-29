@@ -11,6 +11,7 @@ if (!detector) {
 }
 
 
+// IndexedDB用のinterface
 interface Item {
   id: string;
   timestamp: string;
@@ -32,13 +33,11 @@ const formatter = new Intl.DateTimeFormat("ja-JP", {
 });
 
 
-
-// initial setting for global variables
+// 初期設定のグローバル変数
 let stream: MediaStream | null = null;
 let detectTimer: number | null = null;
 let scanning: boolean = false;
 let lastText: string = "";
-const storageNameData = "ReadBarcode";
 
 
 
@@ -69,7 +68,7 @@ const elemResultList = <HTMLElement>document.getElementById("result-list")!;
 
 
 ///////////////////////////////////////
-// set Callback function
+// コールバック関数の設定
 ///////////////////////////////////////
 elemScanBtn.addEventListener("click", callbackScanBtn);
 elemClearBtn.addEventListener("click", callbackClearBtn);
@@ -111,13 +110,14 @@ function setUIState(state: string): void {
 
 
 ///////////////////////////////////////
-// callback functions
+// コールバック関数
 ///////////////////////////////////////
 
 // スキャン画面ボタン
 function callbackScanBtn(): void {
     setUIState("scan");
 };
+
 
 // 戻るボタン
 function callbackBackBtn(): void {
@@ -174,7 +174,7 @@ async function callbackClearBtn(): Promise<void> {
 
 
 ///////////////////////////////////////
-// other functions
+// カメラ、バーコード検出
 ///////////////////////////////////////
 
 // カメラ起動 & バーコード検出
@@ -276,9 +276,11 @@ function getCropRect(video: HTMLVideoElement) {
 }
 
 
+///////////////////////////////////////
 // バーコード解析
-// スタート文字[A-D]とストップ文字[A-D]の中に含まれる6桁の数字を取得
-//    => 6桁の数字が学籍番号
+//   スタート文字[A-D]とストップ文字[A-D]の中に含まれる6桁の数字を取得
+//     => 6桁の数字が学籍番号
+///////////////////////////////////////
 async function analyzeBarcode(code: string): Promise<void> {
     if (code === lastText) return;
 
@@ -287,7 +289,6 @@ async function analyzeBarcode(code: string): Promise<void> {
         alert("無効なバーコードです");
         return;
     }
-
     const id = match[1];
 
     // タイムスタンプ作成
@@ -296,16 +297,15 @@ async function analyzeBarcode(code: string): Promise<void> {
     const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
     const timeStr = `${obj.year}-${obj.month}-${obj.day}T${obj.hour}:${obj.minute}:${obj.second}`;
 
-    // 画面に表示
-    addResultItem({ id, timestamp: timeStr });
-
-    // IndexedDB に保存
-    await addItem({ id, timestamp: timeStr });
-
-    // 二重読み取り防止
-    lastText = code;
-
+    // 登録 & 画面表示
+    const barcodeData: Item = {
+        id: id,
+        timestamp: timeStr
+    };
+    await addItem(barcodeData);  // IndexedDBに保存
+    addResultItem(barcodeData);  // 画面に表示
     await showItemNumber();
+    lastText = code;             // 二重読み取り防止
 }
 
 
@@ -355,8 +355,10 @@ async function getAllItems(): Promise<Item[]> {
 
 
 
-// 結果を表示
-// ID, timestamp
+///////////////////////////////////////
+// 結果の表示
+//   ID, timestamp
+///////////////////////////////////////
 function addResultItem(item: Item): void {
     const { id, timestamp } = item;
 
@@ -374,7 +376,7 @@ function addResultItem(item: Item): void {
 
 
 ///////////////////////////////////////
-// display item number
+// IndexedDBに登録されたデータ数の表示
 ///////////////////////////////////////
 async function showItemNumber(): Promise<void> {
   const items = await getAllItems(); // 全件取得
@@ -418,8 +420,10 @@ async function showResultList(): Promise<void> {
 
 
 
+///////////////////////////////////////
 // Beep sound
 //   duration: msec
+///////////////////////////////////////
 function playBeepSound(duration: number): void {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     const context = new AudioCtx();
@@ -439,20 +443,19 @@ function playBeepSound(duration: number): void {
 
 
 
-
 ///////////////////////////////////////
 // Initialization
 ///////////////////////////////////////
 document.addEventListener("DOMContentLoaded", async () => {
-    const items = await getAllItems();
-    items.sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // 新しい順
+    // const items = await getAllItems();
+    // items.sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // 新しい順
 
-    for (const item of items) {
-        const elem = document.createElement("div");
-        elem.className = "result-item";
-        elem.textContent = `ID: ${item.id} (timestamp ${item.timestamp})`;
-        elemResultList.appendChild(elem);
-    }
+    // for (const item of items) {
+    //     const elem = document.createElement("div");
+    //     elem.className = "result-item";
+    //     elem.textContent = `ID: ${item.id} (timestamp ${item.timestamp})`;
+    //     elemResultList.appendChild(elem);
+    // }
 
     setUIState("initial");
     // show item number and list
