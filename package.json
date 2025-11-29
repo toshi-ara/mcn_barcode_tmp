@@ -1,0 +1,21 @@
+{
+  "name": "mcs_barcode_tmp",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Barcode reader (codabar only)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "tsc": "tsc"
+  },
+  "author": "Toshiaki Ara",
+  "license": "MIT license",
+  "devDependencies": {
+    "npm-check-updates": "^19.1.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4",
+    "vite-plugin-pwa": "^1.2.0"
+  }
+}

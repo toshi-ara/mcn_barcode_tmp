@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="10.510739mm"
+   height="10.510739mm"
+   viewBox="0 0 10.510739 10.510739"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="icon.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:zoom="4.7572176"
+     inkscape:cx="-2.4173794"
+     inkscape:cy="54.233382"
+     inkscape:window-width="1906"
+     inkscape:window-height="1038"
+     inkscape:window-x="4"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid132"
+       originx="-103.21691"
+       originy="-80.722717" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-103.21692,-80.722717)">
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.352777;-inkscape-stroke:none;stop-color:#000000"
+       id="rect235"
+       width="10.510739"
+       height="10.510739"
+       x="103.21692"
+       y="80.722717" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;line-height:1.1;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
+       x="103.54327"
+       y="85.089088"
+       id="text238"><tspan
+         sodipodi:role="line"
+         id="tspan236"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:'VL Pゴシック';-inkscape-font-specification:'VL Pゴシック';fill:#0066ff;stroke-width:0.264583"
+         x="103.54327"
+         y="85.089088">出席</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:'VL Pゴシック';-inkscape-font-specification:'VL Pゴシック';fill:#0066ff;stroke-width:0.264583"
+         x="103.54327"
+         y="90.521866"
+         id="tspan240">確認</tspan></text>
+  </g>
+</svg>

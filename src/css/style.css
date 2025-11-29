@@ -1,0 +1,67 @@
+body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+#video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;    /* はみ出す部分はトリミング */
+    margin: 5px auto;
+    border-radius: 6px;
+    background: black;    /* ロード中も背景を黒に */
+}
+
+#result {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    min-height: 100px;
+    text-align: left;
+    font-size: 1.2em;
+}
+
+#item-number {
+    background-color: #eeeeee;
+    margin-bottom: 5px;
+    padding: 5px;
+}
+
+.result-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #e9f7ef;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+#initial {
+    margin: 20px 0;
+}
+
+#scan {
+    margin: 20px 0;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    width: 250px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px auto;
+    font-size: 1.2em;
+}
+
+#clear-btn {
+    background-color: #dc3545;
+}
+
