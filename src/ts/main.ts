@@ -150,7 +150,6 @@ async function callbackStartBtn() {
 // 結果クリアボタン
 async function callbackClearBtn(): Promise<void> {
     const result = confirm("保持データを消去しますか？");
-
     if (!result) return;
 
     // IndexedDB 全削除
@@ -158,7 +157,7 @@ async function callbackClearBtn(): Promise<void> {
     await new Promise<void>((resolve, reject) => {
         const tx = db.transaction("items", "readwrite");
         const store = tx.objectStore("items");
-        const req = store.clear();   // ★ 全削除
+        const req = store.clear();   // 全削除
 
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
@@ -298,7 +297,7 @@ async function analyzeBarcode(code: string): Promise<void> {
     const timeStr = `${obj.year}-${obj.month}-${obj.day}T${obj.hour}:${obj.minute}:${obj.second}`;
 
     // 画面に表示
-    addResultItem(id);
+    addResultItem({ id, timestamp: timeStr });
 
     // IndexedDB に保存
     await addItem({ id, timestamp: timeStr });
@@ -312,9 +311,8 @@ async function analyzeBarcode(code: string): Promise<void> {
 
 
 ///////////////////////////////////////
-// indexeddb
+// IndexedDB
 ///////////////////////////////////////
-
 function openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("MyDB", 1);
@@ -357,27 +355,21 @@ async function getAllItems(): Promise<Item[]> {
 
 
 
-// 結果を配列に追加
+// 結果を表示
 // ID, timestamp
-function addResultItem(id: string): void {
-    const now = new Date();
+function addResultItem(item: Item): void {
+    const { id, timestamp } = item;
 
-    const parts = formatter.formatToParts(now);
-    const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
-    const timeStr = `${obj.year}-${obj.month}-${obj.day}T${obj.hour}:${obj.minute}:${obj.second}`;
-
-    const resultItem = <HTMLElement>document.createElement("div");
+    const resultItem = document.createElement("div");
     resultItem.className = "result-item";
-    resultItem.textContent = `ID: ${id} (timestamp ${timeStr})`;
-    elemResultList.insertBefore(resultItem, elemResultList.firstChild);
+    resultItem.textContent = `ID: ${id} (timestamp ${timestamp})`;
 
-    // dataArr.push({ "id": id, "timestamp": timeStr });
-    addItem({ id, timestamp: timeStr });
+    elemResultList.insertBefore(resultItem, elemResultList.firstChild);
 
     showItemNumber();
     playBeepSound(100);      // 100 msec
     navigator.vibrate(100);  // 100 msec
-};
+}
 
 
 
