@@ -11,6 +11,10 @@ if (!detector) {
 }
 
 
+// バーコード読み取り間隔 (msec)
+const intervalTime = 500;
+
+
 // IndexedDB用のinterface
 interface Item {
   id: string;
@@ -197,7 +201,7 @@ async function startVideo() {
         if (detectTimer !== null) {
             clearInterval(detectTimer);
         }
-        detectTimer = window.setInterval(detect, 200);
+        detectTimer = window.setInterval(detect, intervalTime);
         detect();  // バーコード検出
     };
 };
@@ -447,18 +451,7 @@ function playBeepSound(duration: number): void {
 // Initialization
 ///////////////////////////////////////
 document.addEventListener("DOMContentLoaded", async () => {
-    // const items = await getAllItems();
-    // items.sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // 新しい順
-
-    // for (const item of items) {
-    //     const elem = document.createElement("div");
-    //     elem.className = "result-item";
-    //     elem.textContent = `ID: ${item.id} (timestamp ${item.timestamp})`;
-    //     elemResultList.appendChild(elem);
-    // }
-
     setUIState("initial");
-    // show item number and list
     showItemNumber();
     showResultList();
 });
