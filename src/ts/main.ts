@@ -272,6 +272,52 @@ function analyzeBarcode(code: string): void {
 };
 
 
+
+function openDB(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open("MyDB", 1);
+
+        request.onupgradeneeded = (event) => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains("items")) {
+                db.createObjectStore("items", { keyPath: "id" }); // id をキーにする
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+
+async function addItem(item: Item): Promise<void> {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("items", "readwrite");
+        tx.objectStore("items").put(item);   // put: 既存IDなら上書き
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+
+async function getAllItems(): Promise<Item[]> {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("items", "readonly");
+        const store = tx.objectStore("items");
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result as Item[]);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+
+
+
+
+
 // 結果を配列に追加
 // ID, timestamp
 function addResultItem(id: string): void {
@@ -296,7 +342,8 @@ function addResultItem(id: string): void {
     resultItem.textContent = `ID: ${id} (timestamp ${timeStr})`;
     elemResultList.insertBefore(resultItem, elemResultList.firstChild);
 
-    dataArr.push({ "id": id, "timestamp": timeStr });
+    // dataArr.push({ "id": id, "timestamp": timeStr });
+    addItem({ id, timestamp: timeStr });
 
     showItemNumber();
     playBeepSound(100);      // 100 msec
@@ -362,29 +409,39 @@ function playBeepSound(duration: number): void {
 
 
 
-///////////////////////////////////////
-// storage
-///////////////////////////////////////
+// ///////////////////////////////////////
+// // storage
+// ///////////////////////////////////////
 
-// save data to localStorage
-function saveStorageData(data: Item[]): void {
-    localStorage.setItem(storageNameData, JSON.stringify(data))
-}
+// // save data to localStorage
+// function saveStorageData(data: Item[]): void {
+//     localStorage.setItem(storageNameData, JSON.stringify(data))
+// }
 
-// get data in localStorage
-function loadStorageData(): Item[] {
-    const data: string | null = localStorage.getItem(storageNameData);
-    return data ? JSON.parse(data): [];
-}
+// // get data in localStorage
+// function loadStorageData(): Item[] {
+//     const data: string | null = localStorage.getItem(storageNameData);
+//     return data ? JSON.parse(data): [];
+// }
 
 
 
 ///////////////////////////////////////
 // Initialization
 ///////////////////////////////////////
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const items = await getAllItems();
+    items.sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // 新しい順
+
+    for (const item of items) {
+        const elem = document.createElement("div");
+        elem.className = "result-item";
+        elem.textContent = `ID: ${item.id} (timestamp ${item.timestamp})`;
+        elemResultList.appendChild(elem);
+    }
+
     setUIState("initial");
-    dataArr = loadStorageData();
+    // dataArr = loadStorageData();
     // show item number and list
     showItemNumber();
     showResultList();
