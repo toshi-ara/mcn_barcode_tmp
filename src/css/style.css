@@ -7,13 +7,13 @@ body {
 }
 
 h1 {
-    margin: 10px;
-    font-size: 1.5em;
+    margin: 5px;
+    font-size: 3em;
 }
 
 h2 {
     margin-bottom: 20px;
-    font-size: 1em;
+    font-size: 1.5em;
     color: gray;
 }
 
