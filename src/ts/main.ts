@@ -9,11 +9,7 @@ import { playBeepSound } from "./sound";
 import { registerSW } from "virtual:pwa-register"
 
 
-registerSW({
-    onNeedRefresh() {
-        alert("新しいバージョンがあります。画面を更新してください。")
-    }
-})
+registerSW({ immediate: true });
 
 
 // Check barcode detector
