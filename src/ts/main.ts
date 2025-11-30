@@ -4,6 +4,7 @@ import {
     addItem,
     clearDB,
 } from "./indexedDB";
+// import { playBeepSound } from "./sound";
 
 
 // Check barcode detector
@@ -140,7 +141,7 @@ async function callbackStartBtn() {
         elemBackBtn.disabled = true;
         elemBackBtn.style.backgroundColor = "gray";
         elemVideo.style.display = "block";
-        startVideo();
+        startVideo(intervalTime);
     } else {
         // Stop
         scanning = false;
@@ -319,7 +320,7 @@ function addResultItem(item: Item): void {
     elemResultList.insertBefore(resultItem, elemResultList.firstChild);
 
     showItemNumber();
-    playBeepSound(100);      // 100 msec
+    // playBeepSound(100);      // 100 msec
     navigator.vibrate(100);  // 100 msec
 }
 
@@ -367,29 +368,6 @@ async function showResultList(): Promise<void> {
     }
     elemResultList.innerHTML = str;
 }
-
-
-
-///////////////////////////////////////
-// Beep sound
-//   duration: msec
-///////////////////////////////////////
-function playBeepSound(duration: number): void {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const context = new AudioCtx();
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = 1000;
-    gainNode.gain.value = 0.1;
-
-    oscillator.start();
-    oscillator.stop(context.currentTime + duration / 1000);
-};
 
 
 
