@@ -4,7 +4,7 @@ import {
     addItem,
     clearDB,
 } from "./indexedDB";
-// import { playBeepSound } from "./sound";
+import { playBeepSound } from "./sound";
 
 import { registerSW } from "virtual:pwa-register"
 
@@ -310,7 +310,7 @@ async function analyzeBarcode(code: string): Promise<void> {
     await addItem(barcodeData);  // IndexedDBに保存
     addResultItem(barcodeData);  // 画面に表示
     await showItemNumber();
-    // playBeepSound(100);       // 100 msec
+    playBeepSound(100);       // 100 msec
     navigator.vibrate(100);      // 100 msec
     lastText = code;             // 二重読み取り防止
 }
