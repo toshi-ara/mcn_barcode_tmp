@@ -6,6 +6,15 @@ import {
 } from "./indexedDB";
 // import { playBeepSound } from "./sound";
 
+import { registerSW } from "virtual:pwa-register"
+
+
+registerSW({
+    onNeedRefresh() {
+        alert("新しいバージョンがあります。画面を更新してください。")
+    }
+})
+
 
 // Check barcode detector
 if (!("BarcodeDetector" in window)) {

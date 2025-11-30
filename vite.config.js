@@ -5,6 +5,7 @@ export default defineConfig({
   base: "./",
   plugins: [
     VitePWA({
+      registerType: 'autoUpdate',
       manifest: {
         "name": "MCN barcode reader (tmp)",
         "short_name": "barcode reader (tmp)",
