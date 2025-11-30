@@ -160,7 +160,7 @@ async function callbackClearBtn(): Promise<void> {
     if (!result) return;
 
     await clearDB();  // IndexedDB 全削除
-    lastText = "";   // 内部状態リセット
+    lastText = "";    // 内部状態リセット
 
     // 画面の反映
     await showItemNumber();   // 件数が0になる
@@ -301,6 +301,8 @@ async function analyzeBarcode(code: string): Promise<void> {
     await addItem(barcodeData);  // IndexedDBに保存
     addResultItem(barcodeData);  // 画面に表示
     await showItemNumber();
+    // playBeepSound(100);       // 100 msec
+    navigator.vibrate(100);      // 100 msec
     lastText = code;             // 二重読み取り防止
 }
 
@@ -308,27 +310,22 @@ async function analyzeBarcode(code: string): Promise<void> {
 
 ///////////////////////////////////////
 // 結果の表示
-//   ID, timestamp
 ///////////////////////////////////////
+
+// 読み取った ID, timestamp の表示
 function addResultItem(item: Item): void {
     const { id, timestamp } = item;
 
     const resultItem = document.createElement("div");
     resultItem.className = "result-item";
     resultItem.textContent = `ID: ${id} (timestamp ${timestamp})`;
-
     elemResultList.insertBefore(resultItem, elemResultList.firstChild);
 
-    showItemNumber();
-    // playBeepSound(100);      // 100 msec
-    navigator.vibrate(100);  // 100 msec
+    // showItemNumber();
 }
 
 
-
-///////////////////////////////////////
 // IndexedDBに登録されたデータ数の表示
-///////////////////////////////////////
 async function showItemNumber(): Promise<void> {
   const items = await getAllItems(); // 全件取得
 
@@ -339,7 +336,7 @@ async function showItemNumber(): Promise<void> {
 }
 
 
-// display result list
+// IndexedDBに登録された全データの表示（unique ID）
 async function showResultList(): Promise<void> {
     // IndexedDB から全件取得
     const items = await getAllItems();
