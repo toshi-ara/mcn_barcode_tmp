@@ -174,7 +174,7 @@ async function callbackClearBtn(): Promise<void> {
 ///////////////////////////////////////
 
 // カメラ起動 & バーコード検出
-async function startVideo() {
+async function startVideo(intervalTime: number) {
     stream = await navigator.mediaDevices
         .getUserMedia({
             audio: false,
