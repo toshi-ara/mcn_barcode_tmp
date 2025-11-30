@@ -163,7 +163,7 @@ async function callbackClearBtn(): Promise<void> {
     lastText = "";    // 内部状態リセット
 
     // 画面の反映
-    await showItemNumber();   // 件数が0になる
+    await showItemNumber();
     elemResultList.innerHTML = "";
 }
 
@@ -193,8 +193,8 @@ async function startVideo(intervalTime: number) {
         if (detectTimer !== null) {
             clearInterval(detectTimer);
         }
-        detectTimer = window.setInterval(detect, intervalTime);
-        detect();  // バーコード検出
+        detectTimer = window.setInterval(detectBarcode, intervalTime);
+        detectBarcode();  // バーコード検出
     };
 };
 
@@ -220,7 +220,7 @@ function stopVideo(): void {
 
 
 // バーコード検出
-async function detect() {
+async function detectBarcode() {
     if (!('BarcodeDetector' in window)) return;
     const crop = getCropRect(elemVideo);
 
@@ -320,8 +320,6 @@ function addResultItem(item: Item): void {
     resultItem.className = "result-item";
     resultItem.textContent = `ID: ${id} (timestamp ${timestamp})`;
     elemResultList.insertBefore(resultItem, elemResultList.firstChild);
-
-    // showItemNumber();
 }
 
 
